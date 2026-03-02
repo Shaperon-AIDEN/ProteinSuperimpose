@@ -2,6 +2,7 @@
 Superimpose CIF structures by a specified chain (Cα atoms).
 Groups files by design ID and aligns model_1~N onto the reference model.
 All chains move together as a rigid body.
+Original CIF metadata (pLDDT, _ma_qa_metric_local, etc.) is fully preserved.
 
 Usage:
     python superimpose_by_chainA.py [--input_dir DIR] [--output_dir DIR]
@@ -10,12 +11,15 @@ Usage:
 
 import re
 import time
+import shutil
 import argparse
 import warnings
 from pathlib import Path
 from collections import defaultdict
 
-from Bio.PDB import MMCIFParser, MMCIFIO, Superimposer
+import numpy as np
+import gemmi
+from Bio.PDB import MMCIFParser, Superimposer
 
 warnings.filterwarnings("ignore")
 
@@ -42,6 +46,27 @@ def get_ca_atoms(chain):
     return ca_atoms
 
 
+def apply_transform_to_cif(input_path, output_path, rot, tran):
+    """
+    원본 CIF 파일의 모든 메타데이터(pLDDT, _ma_qa_metric_local 등)를 유지하면서
+    rotation/translation을 좌표(_atom_site.Cartn_x/y/z)에만 적용하여 저장.
+
+    변환식: new_coord = old_coord @ rot + tran  (BioPython Superimposer 규약)
+    """
+    doc = gemmi.cif.read(str(input_path))
+    block = doc.sole_block()
+
+    table = block.find("_atom_site.", ["Cartn_x", "Cartn_y", "Cartn_z"])
+    for row in table:
+        coord = np.array([float(row[0]), float(row[1]), float(row[2])])
+        new_coord = coord @ rot + tran
+        row[0] = f"{new_coord[0]:.3f}"
+        row[1] = f"{new_coord[1]:.3f}"
+        row[2] = f"{new_coord[2]:.3f}"
+
+    doc.write_file(str(output_path))
+
+
 def superimpose_models(
     input_dir: str,
     output_dir: str,
@@ -51,7 +76,7 @@ def superimpose_models(
     """
     input_dir 내 CIF 파일을 디자인 ID별로 그룹화하고,
     각 그룹에서 reference_model을 기준으로 나머지 모델을 지정 Chain의 Cα로 superimpose.
-    결과를 output_dir에 저장.
+    원본 CIF의 모든 메타데이터(pLDDT 등)를 유지하며 결과를 output_dir에 저장.
     """
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
@@ -75,7 +100,6 @@ def superimpose_models(
     print(f"Reference 모델 인덱스: {reference_model_idx}")
 
     parser = MMCIFParser(QUIET=True)
-    io = MMCIFIO()
     sup = Superimposer()
 
     success_count = 0
@@ -108,10 +132,8 @@ def superimpose_models(
             error_count += 1
             continue
 
-        # Reference 모델 자체도 output으로 복사
-        out_ref = output_dir / ref_path.name
-        io.set_structure(ref_struct)
-        io.save(str(out_ref))
+        # Reference 모델은 변환 없이 원본 그대로 복사
+        shutil.copy2(str(ref_path), str(output_dir / ref_path.name))
 
         # 나머지 모델 superimpose
         for idx, mob_path in sorted(model_files.items()):
@@ -141,17 +163,19 @@ def superimpose_models(
                 error_count += 1
                 continue
 
-            # 지정 Chain Cα 기준으로 superimpose 계산
+            # 지정 Chain Cα 기준으로 superimpose 계산 → rotation/translation 획득
             sup.set_atoms(ref_ca, mob_ca)
+            rot, tran = sup.rotran
 
-            # 계산된 rotation/translation을 전체 구조(모든 chain)에 적용
-            all_atoms = list(mob_struct.get_atoms())
-            sup.apply(all_atoms)
-
-            # 저장
+            # 원본 CIF 메타데이터를 유지하면서 좌표만 변환하여 저장
             out_path = output_dir / mob_path.name
-            io.set_structure(mob_struct)
-            io.save(str(out_path))
+            try:
+                apply_transform_to_cif(mob_path, out_path, rot, tran)
+            except Exception as e:
+                print(f"  [ERROR] {design_id} model_{idx} 저장 실패: {e}, skip")
+                error_count += 1
+                continue
+
             success_count += 1
 
         # 진행 상황 출력 (500개마다)
