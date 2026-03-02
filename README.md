@@ -1,8 +1,8 @@
-# superimpose_by_chainA.py
+# superimpose_by_chain.py
 
 CIF 형식의 단백질 구조 파일들을 지정한 Chain의 Cα 원자를 기준으로 superimpose합니다.
 파일명 패턴(`*_model_N.cif`)으로 디자인 그룹을 자동 분류하고, reference 모델에 나머지 모델을 정렬합니다.
-정렬 시 모든 Chain이 rigid body로 함께 이동합니다.
+정렬 시 모든 Chain이 rigid body로 함께 이동하며, pLDDT 등 원본 CIF의 모든 메타데이터가 보존됩니다.
 
 ---
 
@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ## 사용법
 
 ```bash
-python superimpose_by_chainA.py \
+python superimpose_by_chain.py \
   --input_dir  <입력 디렉토리> \
   --output_dir <출력 디렉토리> \
   [--chain A] \
@@ -66,7 +66,7 @@ ALB_vNMb#02_model_1.cif
 ### Chain A 기준 (기본값)
 
 ```bash
-python superimpose_by_chainA.py \
+python superimpose_by_chain.py \
   --input_dir  vNMb#02 \
   --output_dir vNMb#02_aligned
 ```
@@ -74,7 +74,7 @@ python superimpose_by_chainA.py \
 ### Chain B 기준
 
 ```bash
-python superimpose_by_chainA.py \
+python superimpose_by_chain.py \
   --input_dir  consistency_analysis_HSA/predicted_structure_seed1235 \
   --output_dir consistency_analysis_HSA/predicted_structure_seed1235_aligned \
   --chain B
@@ -83,7 +83,7 @@ python superimpose_by_chainA.py \
 ### model_1을 reference로 사용
 
 ```bash
-python superimpose_by_chainA.py \
+python superimpose_by_chain.py \
   --input_dir  vNMb#02 \
   --output_dir vNMb#02_aligned_ref1 \
   --chain A \
@@ -98,7 +98,9 @@ python superimpose_by_chainA.py \
 2. 각 그룹에서 `--reference_model` 번호의 구조를 reference로 로드
 3. `--chain`으로 지정한 Chain의 Cα 원자만을 사용해 최적 superimposition 계산
 4. 계산된 rotation/translation을 구조 전체(모든 Chain)에 적용
-5. reference 포함 모든 모델을 `--output_dir`에 저장
+5. 원본 CIF 파일에서 좌표 컬럼(`_atom_site.Cartn_x/y/z`)만 갱신하여 저장
+   - pLDDT(`_ma_qa_metric_local`) 등 모든 메타데이터 보존
+   - reference 모델은 원본 파일 그대로 복사
 
 > Google Drive 등 네트워크 스토리지의 파일은 다운로드 지연으로 타임아웃이 발생할 수 있습니다.
 > 이 경우 자동으로 최대 5회 재시도합니다.
