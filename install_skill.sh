@@ -13,6 +13,11 @@ set -euo pipefail
 SKILL_NAME="superimpose-protein"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILL_SRC="${SCRIPT_DIR}/skills/${SKILL_NAME}/SKILL.md"
+PY_SCRIPTS=(
+    "${SCRIPT_DIR}/superimpose_by_chain.py"
+    "${SCRIPT_DIR}/superimpose_all_by_chain.py"
+    "${SCRIPT_DIR}/requirements.txt"
+)
 
 # ── 소스 파일 확인 ──────────────────────────────────
 if [[ ! -f "${SKILL_SRC}" ]]; then
@@ -20,6 +25,14 @@ if [[ ! -f "${SKILL_SRC}" ]]; then
     echo "  ${SKILL_SRC}" >&2
     exit 1
 fi
+
+for f in "${PY_SCRIPTS[@]}"; do
+    if [[ ! -f "${f}" ]]; then
+        echo "Error: Required file not found at:" >&2
+        echo "  ${f}" >&2
+        exit 1
+    fi
+done
 
 # ── 설치 대상 결정 ───────────────────────────────────
 if [[ "${1:-}" == "--project" ]]; then
@@ -37,12 +50,16 @@ fi
 # ── 설치 ──────────────────────────────────────────────
 mkdir -p "${DEST_DIR}"
 cp "${SKILL_SRC}" "${DEST_DIR}/SKILL.md"
+for f in "${PY_SCRIPTS[@]}"; do
+    cp "${f}" "${DEST_DIR}/"
+done
 
 echo ""
 echo "✓ '${SKILL_NAME}' 스킬 설치 완료"
 echo ""
 echo "  설치 범위 : ${SCOPE}"
-echo "  설치 위치 : ${DEST_DIR}/SKILL.md"
+echo "  설치 위치 : ${DEST_DIR}/"
+echo "  설치 파일 : SKILL.md, superimpose_by_chain.py, superimpose_all_by_chain.py, requirements.txt"
 echo ""
 echo "★ 주의: 새 Claude Code 세션을 시작해야 스킬이 인식됩니다."
 echo "  세션 시작 후 '/superimpose-protein' 명령어를 사용하거나,"
