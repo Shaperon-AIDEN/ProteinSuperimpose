@@ -10,6 +10,50 @@ CIF 형식의 단백질 구조 파일들을 지정한 Chain의 Cα 원자를 기
 
 ---
 
+## Claude Code Skill
+
+Claude Code에서 `/superimpose-protein` 슬래시 명령어 또는 "구조 정렬", "superimpose", "alignment" 키워드로 이 스크립트들을 자동 실행할 수 있습니다.
+
+### 스킬 설치
+
+**자동 설치 (권장):**
+
+```bash
+# 전역 설치 (~/.claude/skills/) — 모든 프로젝트에서 사용 가능
+bash install_skill.sh
+
+# 프로젝트 수준 설치 (.claude/skills/) — 현재 프로젝트에서만 사용
+bash install_skill.sh --project
+
+# 특정 프로젝트에 설치
+bash install_skill.sh --project /path/to/your/project
+```
+
+**수동 설치:**
+
+```bash
+# 전역 설치
+mkdir -p ~/.claude/skills/superimpose-protein
+cp skills/superimpose-protein/SKILL.md ~/.claude/skills/superimpose-protein/
+
+# 프로젝트 수준 설치
+mkdir -p .claude/skills/superimpose-protein
+cp skills/superimpose-protein/SKILL.md .claude/skills/superimpose-protein/
+```
+
+### 설치 후 주의사항
+
+> **중요:** 스킬 설치 후 반드시 새 Claude Code 세션을 시작해야 스킬이 인식됩니다.
+> `~/.claude/skills/`는 세션 시작 시 로드되며, 실행 중인 세션에서는 새로 생성된 파일을 자동 감지하지 않습니다.
+
+설치 확인 방법:
+```
+# Claude Code 새 세션에서 슬래시 명령어 사용
+/superimpose-protein chain=A input=./my_structures
+```
+
+---
+
 ## 요구 사항
 
 - Python 3.8 이상
