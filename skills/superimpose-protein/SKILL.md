@@ -30,11 +30,12 @@ description: >
 
 ## Step 2 — ProteinSuperimpose 스크립트 위치 확인
 
-다음 우선순위로 스크립트를 탐색합니다:
+다음 우선순위로 `superimpose_by_chain.py` 파일을 탐색하여 `script_dir`을 결정합니다:
 
-1. 현재 프로젝트 내 `ProteinSuperimpose/` 폴더
-2. `~/workspace/Projects/nanobody_ALB/ProteinSuperimpose/`
-3. `$ARGUMENTS`에 경로가 명시된 경우
+1. 스킬 전역 설치 디렉토리: `~/.claude/skills/superimpose-protein/`
+2. 스킬 프로젝트 설치 디렉토리: `.claude/skills/superimpose-protein/` (현재 작업 디렉토리 기준)
+3. 현재 프로젝트 내 `ProteinSuperimpose/` 폴더
+4. `~/workspace/Projects/nanobody_ALB/ProteinSuperimpose/`
 
 스크립트를 찾지 못하면 위치를 사용자에게 확인합니다.
 
