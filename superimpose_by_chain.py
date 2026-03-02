@@ -5,8 +5,8 @@ All chains move together as a rigid body.
 Original CIF metadata (pLDDT, _ma_qa_metric_local, etc.) is fully preserved.
 
 Usage:
-    python superimpose_by_chainA.py [--input_dir DIR] [--output_dir DIR]
-                                    [--chain A] [--reference_model 0]
+    python superimpose_by_chain.py [--input_dir DIR] [--output_dir DIR]
+                                   [--chain A] [--reference_model 0]
 """
 
 import re
