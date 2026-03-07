@@ -56,12 +56,17 @@ cp skills/superimpose-protein/SKILL.md .claude/skills/superimpose-protein/
 
 ## 요구 사항
 
-- Python 3.8 이상
+- [Conda](https://docs.conda.io/en/latest/miniconda.html) 설치
+- Python 3.11 (Conda 환경 `superimpose` 권장)
 
-### 라이브러리 설치
+### 환경 생성 및 라이브러리 설치
 
 ```bash
-pip install -r requirements.txt
+# Conda 환경 생성
+conda create -n superimpose python=3.11 -y
+
+# 라이브러리 설치
+conda run -n superimpose pip install -r requirements.txt
 ```
 
 ---
@@ -74,7 +79,7 @@ pip install -r requirements.txt
 ### 사용법
 
 ```bash
-python superimpose_by_chain.py \
+conda run -n superimpose python superimpose_by_chain.py \
   --input_dir  <입력 디렉토리> \
   --output_dir <출력 디렉토리> \
   [--chain A] \
@@ -114,18 +119,18 @@ ALB_vNMb#02_model_1.cif
 
 ```bash
 # Chain A 기준 (기본값)
-python superimpose_by_chain.py \
+conda run -n superimpose python superimpose_by_chain.py \
   --input_dir  vNMb#02 \
   --output_dir vNMb#02_aligned
 
 # Chain B 기준
-python superimpose_by_chain.py \
+conda run -n superimpose python superimpose_by_chain.py \
   --input_dir  predicted_structure_seed1235 \
   --output_dir predicted_structure_seed1235_aligned \
   --chain B
 
 # model_1을 reference로 사용
-python superimpose_by_chain.py \
+conda run -n superimpose python superimpose_by_chain.py \
   --input_dir  vNMb#02 \
   --output_dir vNMb#02_aligned_ref1 \
   --chain A \
@@ -168,7 +173,7 @@ Reference 모델 인덱스: 0
 ### 사용법
 
 ```bash
-python superimpose_all_by_chain.py \
+conda run -n superimpose python superimpose_all_by_chain.py \
   --input_root  <최상위 입력 디렉토리> \
   --output_root <최상위 출력 디렉토리> \
   [--chain A] \
@@ -188,13 +193,13 @@ python superimpose_all_by_chain.py \
 
 ```bash
 # consistency_HSA/MSA 전체를 Chain A 기준으로 단일 reference에 정렬
-python superimpose_all_by_chain.py \
+conda run -n superimpose python superimpose_all_by_chain.py \
   --input_root  structure_prediction_designedNMb \
   --output_root structure_prediction_designedNMb_aligned \
   --chain A
 
 # 특정 파일을 reference로 명시
-python superimpose_all_by_chain.py \
+conda run -n superimpose python superimpose_all_by_chain.py \
   --input_root  structure_prediction_designedNMb \
   --output_root structure_prediction_designedNMb_aligned \
   --chain B \
