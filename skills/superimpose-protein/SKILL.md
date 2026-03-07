@@ -41,13 +41,18 @@ description: >
 
 ## Step 3 — conda 환경 확인
 
+먼저 conda 환경이 없다면 생성:
+```bash
+conda create -n superimpose python=3.11 -y
+```
+
 스크립트 실행 전 필요 라이브러리 확인:
 ```bash
-conda run -n acemd python -c "import Bio, gemmi, numpy; print('OK')"
+conda run -n superimpose python -c "import Bio, gemmi, numpy; print('OK')"
 ```
 오류 시:
 ```bash
-conda run -n acemd pip install -r <script_dir>/requirements.txt
+conda run -n superimpose pip install -r <script_dir>/requirements.txt
 ```
 
 ## Step 4 — 스크립트 실행
@@ -55,7 +60,7 @@ conda run -n acemd pip install -r <script_dir>/requirements.txt
 ### mode = group (superimpose_by_chain.py)
 
 ```bash
-conda run -n acemd python <script_dir>/superimpose_by_chain.py \
+conda run -n superimpose python <script_dir>/superimpose_by_chain.py \
   --input_dir  "<input>" \
   --output_dir "<output>" \
   --chain <chain> \
@@ -65,7 +70,7 @@ conda run -n acemd python <script_dir>/superimpose_by_chain.py \
 ### mode = all (superimpose_all_by_chain.py)
 
 ```bash
-conda run -n acemd python <script_dir>/superimpose_all_by_chain.py \
+conda run -n superimpose python <script_dir>/superimpose_all_by_chain.py \
   --input_root  "<input>" \
   --output_root "<output>" \
   --chain <chain> \
